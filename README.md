@@ -1,2 +1,2 @@
-# Sitecore XConnect AWS Kinesis Firehouse Data Streaming Example
+# Sitecore XConnect AWS Kinesis Firehouse Streaming Example
  
