@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
 
 
 namespace Sitecore.XConnect.Streaming.Console
@@ -7,7 +8,11 @@ namespace Sitecore.XConnect.Streaming.Console
     {
         public static void Main(string[] args)
         {
-            var streamingApp = new DataStreamingApp();
+            var configBuilder = new ConfigurationBuilder();
+            configBuilder.AddXmlFile("settings.xml", true);
+            var config = configBuilder.Build();
+
+            var streamingApp = new DataStreamingApp(config);
             Task.Run(() => streamingApp.RunAsync()).Wait();
         }
     }

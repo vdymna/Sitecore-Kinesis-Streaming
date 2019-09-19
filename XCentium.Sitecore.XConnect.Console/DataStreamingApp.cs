@@ -1,4 +1,6 @@
-﻿using Sitecore.XConnect;
+﻿using Amazon;
+using Microsoft.Extensions.Configuration;
+using Sitecore.XConnect;
 using Sitecore.XConnect.Collection.Model;
 using Sitecore.XConnect.Streaming.Dtos;
 using System;
@@ -11,18 +13,27 @@ namespace Sitecore.XConnect.Streaming.Console
     public class DataStreamingApp
     {
         private readonly XConnectProvider _xConnectProvider;
-        private readonly CheckpointTracker _checkpointTracker;
+        private readonly DynamoDbCheckpointTracker _checkpointTracker;
         private readonly KinesisProducer _kinesisProducer;
+        private readonly IConfiguration _config;
 
-        private const int XConnectBatchSize = 500;
+        private readonly string _regionName;
+        private readonly string _kinesisStreamName;
 
-        private static readonly string KinesisStreamName = "Some-Stream-Name";
+        private const int XConnectBatchSize = 100;
+        private static readonly DateTime InitialCheckpoint = new DateTime(2018, 08, 30).ToUniversalTime();
 
-        public DataStreamingApp()
+        public DataStreamingApp(IConfiguration config)
         {
-            _xConnectProvider = new XConnectProvider();
-            _checkpointTracker = new CheckpointTracker();
-            _kinesisProducer = new KinesisProducer(KinesisStreamName);
+            _config = config;
+
+            _regionName = _config.GetValue<string>("aws:region");
+            _kinesisStreamName = _config.GetValue<string>("aws:kinesisStream");
+            var checkpointTableName = _config.GetValue<string>("aws:checkpointTable");
+
+            _xConnectProvider = new XConnectProvider(_config);
+            _checkpointTracker = new DynamoDbCheckpointTracker(checkpointTableName, _regionName);
+            _kinesisProducer = new KinesisProducer(_kinesisStreamName, _regionName);
         }
 
         public async Task RunAsync()
@@ -31,7 +42,8 @@ namespace Sitecore.XConnect.Streaming.Console
 
             try
             {
-                var lastCheckpointTimestamp = _checkpointTracker.GetLastCheckpoint();
+                var lastCheckpointTimestamp = await _checkpointTracker.GetLastCheckpointAsUtc(_kinesisStreamName) 
+                                                    ?? InitialCheckpoint;
                 var maxStartDateTime = DateTime.UtcNow;
 
 
@@ -51,7 +63,7 @@ namespace Sitecore.XConnect.Streaming.Console
 
                 while (await batchEnumerator.MoveNext())
                 {
-                    var pageViewData = new List<object>();
+                    var interactions = new List<object>();
                     var batch = batchEnumerator.Current; // Batch of <= 500 records
 
                     foreach (var interaction in batch)
@@ -78,12 +90,12 @@ namespace Sitecore.XConnect.Streaming.Console
                                 Url = pageView.Url
                             };
 
-                            pageViewData.Add(pageViewDto);
+                            interactions.Add(pageViewDto);
                         }
 
                     }
 
-                    await _kinesisProducer.PutRecordsAsJson(pageViewData);
+                    await _kinesisProducer.PutRecordsAsJson(interactions);
                 }
 
             }
@@ -92,6 +104,15 @@ namespace Sitecore.XConnect.Streaming.Console
                 // Handle exception
                 throw;
             }
+            catch (Exception ex)
+            {
+                // Handle exception
+                throw;
+            }
+
+            await _checkpointTracker.CreateCheckpoint(_kinesisStreamName, DateTime.UtcNow);
+
+            System.Console.ReadKey(); // Only for testing
         }
     }
 }
