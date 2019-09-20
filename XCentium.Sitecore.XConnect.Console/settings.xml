@@ -13,8 +13,11 @@
     </certificate>
   </xconnect>
   <aws>
+    <!-- AWS Region -->
     <region>us-west-2</region>
+    <!-- Kinesis Firehouse Delivery Stream Name -->
     <kinesisStream>vdymna-xconnect-test</kinesisStream>
+    <!-- DynamoDB Checkpoint Table Name -->
     <checkpointTable>StreamingCheckpoint</checkpointTable>
   </aws>
 </settings>

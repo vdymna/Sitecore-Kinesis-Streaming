@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XCentium.Sitecore.XConnect.Console
+namespace Sitecore.DataStreaming.Utilities
 {
     public class ConsoleLogger : ILogger
     {

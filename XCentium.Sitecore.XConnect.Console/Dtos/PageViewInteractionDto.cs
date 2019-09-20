@@ -20,10 +20,6 @@ namespace Sitecore.XConnect.Streaming.Dtos
 
         public string IpAddress { get; set; }
 
-        //public string MetroCode { get; set; }
-
-        //public string Country { get; set; }
-
         public Guid? PageViewEventId { get; set; }
 
         public DateTime Timestamp { get; set; }

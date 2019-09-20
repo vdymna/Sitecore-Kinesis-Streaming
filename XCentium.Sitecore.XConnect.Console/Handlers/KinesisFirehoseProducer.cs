@@ -1,26 +1,28 @@
 ﻿using Amazon;
 using Amazon.KinesisFirehose;
 using Amazon.KinesisFirehose.Model;
-using Amazon.Runtime;
+using Microsoft.Extensions.Configuration;
+using Sitecore.DataStreaming.Extensions;
+using Sitecore.DataStreaming.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using XCentium.Sitecore.XConnect.Console;
 
-namespace Sitecore.XConnect.Streaming
+namespace Sitecore.DataStreaming.Handlers
 {
-    public class KinesisProducer : IDisposable
+    public class KinesisFirehoseProducer : IDisposable
     {
-        private readonly IAmazonKinesisFirehose _kinesisClient;
-
-        private readonly ILogger _logger;
-
         public string DeliveryStreamName { get; }
 
-        public RegionEndpoint AwsRegion { get; }
+        private readonly IAmazonKinesisFirehose _kinesisFirehoseClient;
+
+        private readonly IConfiguration _config;
+        private readonly ILogger _logger;
+
+        //private readonly string _deliveryStreamName;
+        private readonly RegionEndpoint _region;
 
         private const int TotalMaxRetries = 6;
         private int _totalRetries = 0;
@@ -30,24 +32,26 @@ namespace Sitecore.XConnect.Streaming
         private int _failedRecordsMaxRetries = 0;
 
 
-        public KinesisProducer(string deliveryStreamName, string regionName = null)
+        public KinesisFirehoseProducer(IConfiguration config)
         {
-            DeliveryStreamName = deliveryStreamName;
-            AwsRegion = regionName == null ? null : RegionEndpoint.GetBySystemName(regionName);
-
+            _config = config;
             _logger = new ConsoleLogger();
-            _kinesisClient = CreateKinesisFirehouseClient(AwsRegion);
+
+            DeliveryStreamName = _config.GetValue<string>("aws:kinesisStream");
+            _region = RegionEndpoint.GetBySystemName(_config.GetValue<string>("aws:region"));
+
+            if (string.IsNullOrEmpty(DeliveryStreamName)) throw new ArgumentNullException("deliveryStreamName");
+
+            _kinesisFirehoseClient = CreateKinesisFirehouseClient(_region);
         }
 
-        public async Task PutRecordsAsJson(List<object> records)
+        public async Task PutRecordsAsJson<T>(List<T> records)
         {
-            // each record record must be <= 1,000 KB
-            // whole request must be under 4 MB
             var kinesisRecords = records
                 .Select(r => r.ToJsonWithNewline().ToKinesisRecord())
                 .ToList();
             
-            foreach (var chunkOfRecords in kinesisRecords.GetRecordChunks())
+            foreach (var chunkOfRecords in kinesisRecords.SplitIntoChunks())
             {
                 _logger.LogInfo($"Putting {chunkOfRecords.Count} records into the Kinesis stream.");
                 var response = await AttemptPutRecords(chunkOfRecords);
@@ -64,7 +68,7 @@ namespace Sitecore.XConnect.Streaming
 
             try
             {
-                response = await _kinesisClient.PutRecordBatchAsync(DeliveryStreamName, kinesisRecords);
+                response = await _kinesisFirehoseClient.PutRecordBatchAsync(DeliveryStreamName, kinesisRecords);
 
                 if (response.FailedPutCount > 0)
                 {
@@ -129,6 +133,11 @@ namespace Sitecore.XConnect.Streaming
 
         }
 
+        public void Dispose()
+        {
+            _kinesisFirehoseClient.Dispose();
+        }
+
         private IAmazonKinesisFirehose CreateKinesisFirehouseClient(RegionEndpoint region = null)
         {
             // credentials will be read from User\.aws\ folder
@@ -138,11 +147,6 @@ namespace Sitecore.XConnect.Streaming
             }
 
             return new AmazonKinesisFirehoseClient();
-        }
-
-        public void Dispose()
-        {
-            _kinesisClient.Dispose();
         }
     }
 }

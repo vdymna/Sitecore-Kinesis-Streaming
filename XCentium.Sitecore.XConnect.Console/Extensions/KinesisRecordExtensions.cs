@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sitecore.XConnect.Streaming
+namespace Sitecore.DataStreaming.Extensions
 {
     public static class KinesisRecordExtensions
     {
@@ -32,7 +32,7 @@ namespace Sitecore.XConnect.Streaming
             };
         }
 
-        public static IEnumerable<List<Record>> GetRecordChunks(this List<Record> kinesisRecords, int chunkSize = 500)
+        public static IEnumerable<List<Record>> SplitIntoChunks(this List<Record> kinesisRecords, int chunkSize = 500)
         {
             var processed = 0;
             var listOfChunks = new List<List<Record>>();

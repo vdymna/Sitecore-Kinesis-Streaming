@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 
-namespace Sitecore.XConnect.Streaming.Console
+namespace Sitecore.DataStreaming.Console
 {
     public class Program
     {
@@ -12,8 +12,8 @@ namespace Sitecore.XConnect.Streaming.Console
             configBuilder.AddXmlFile("settings.xml", true);
             var config = configBuilder.Build();
 
-            var streamingApp = new DataStreamingApp(config);
-            Task.Run(() => streamingApp.RunAsync()).Wait();
+            var pipeline = new DataStreamingPipeline(config);
+            Task.Run(() => pipeline.RunAsync()).Wait();
         }
     }
 }

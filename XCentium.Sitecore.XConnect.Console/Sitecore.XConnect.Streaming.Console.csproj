@@ -190,16 +190,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DynamoDbCheckpointTracker.cs" />
-    <Compile Include="ConsoleLogger.cs" />
-    <Compile Include="DataStreamingApp.cs" />
-    <Compile Include="ILogger.cs" />
-    <Compile Include="KinesisProducer.cs" />
+    <Compile Include="Handlers\DynamoDbCheckpointTracker.cs" />
+    <Compile Include="Utilities\ConsoleLogger.cs" />
+    <Compile Include="DataStreamingPipeline.cs" />
+    <Compile Include="Utilities\ILogger.cs" />
+    <Compile Include="Handlers\KinesisFirehoseProducer.cs" />
     <Compile Include="Dtos\PageViewInteractionDto.cs" />
-    <Compile Include="KinesisRecordExtensions.cs" />
+    <Compile Include="Extensions\KinesisRecordExtensions.cs" />
+    <Compile Include="Pipeline.Old.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XConnectProvider.cs" />
+    <Compile Include="Providers\XConnectProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
