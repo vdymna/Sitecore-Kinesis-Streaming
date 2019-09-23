@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Sitecore.DataStreaming.Handlers;
+using Sitecore.DataStreaming.Services;
 using Sitecore.DataStreaming.Providers;
 using Sitecore.XConnect;
 using Sitecore.XConnect.Client;
@@ -9,52 +9,92 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Sitecore.DataStreaming.Utilities;
+using System.Diagnostics;
 
 namespace Sitecore.DataStreaming
 {
-    public class DataStreamingPipeline
+    public class DataStreamingPipeline : IDisposable
     {
-        private readonly XConnectProvider _xConnectProvider;
-        private readonly KinesisFirehoseProducer _kinesisProducer;
-        private readonly DynamoDbCheckpointTracker _checkpointTracker;
-
         private readonly IConfiguration _config;
+        private readonly ILogger _logger;
+
+        private XConnectProvider _xConnectProvider;
+        private KinesisProducer _kinesisProducer;
+        private CheckpointTracker _checkpointTracker;
 
         private const int XConnectQueryBatchSize = 100;
+        private static readonly TimeSpan SingleExecutionTime = new TimeSpan(0, 0, 20);
         private static readonly DateTime QueryInitialTimestamp = new DateTime(2018, 08, 30, 0, 0, 0, DateTimeKind.Utc);
 
-        public DataStreamingPipeline(IConfiguration config)
+
+        public DataStreamingPipeline(IConfiguration config, ILogger logger)
         {
             _config = config;
-
-            _xConnectProvider = new XConnectProvider(config);
-            _kinesisProducer = new KinesisFirehoseProducer(config);
-            _checkpointTracker = new DynamoDbCheckpointTracker(config);
+            _logger = logger;
         }
 
-        public async Task RunAsync()
+        public void Initialize()
         {
-            var xConnectClient = await _xConnectProvider.CreateXConnectClient();
-
-            var lastCheckpointDate = await _checkpointTracker.GetLastCheckpoint(_kinesisProducer.DeliveryStreamName);
-            var newCheckpointDate = DateTime.UtcNow;
-
-            var queryBatchEnumerator = await CreateXConnectQuery(xConnectClient,
-                                                                 lastCheckpointDate ?? QueryInitialTimestamp,
-                                                                 newCheckpointDate,
-                                                                 XConnectQueryBatchSize);
-
-            while (await queryBatchEnumerator.MoveNext())
+            try
             {
-                var recordBatch = queryBatchEnumerator.Current;
-                var transformedRecords = await CreateRecordsProjection(recordBatch);
+                _xConnectProvider = new XConnectProvider(_config);
+                _kinesisProducer = new KinesisProducer(_config, _logger);
+                _checkpointTracker = new CheckpointTracker(_config);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+                throw;
+            }
+        }
 
-                await _kinesisProducer.PutRecordsAsJson(transformedRecords);
+        public async Task RunAsync(TimeSpan maxRunTime)
+        {          
+            var currentExecution = Stopwatch.StartNew();
+
+            _logger.LogInfo("Starting...");
+
+            while (currentExecution.Elapsed < maxRunTime.Subtract(SingleExecutionTime))
+            {
+                await RunOnceAsync();
             }
 
-            await _checkpointTracker.CreateNewCheckpoint(_kinesisProducer.DeliveryStreamName, newCheckpointDate);
+            _logger.LogInfo("Shutting down...");
 
-            System.Console.ReadKey(); // Only for testing
+            currentExecution.Stop();
+        }
+
+        public async Task RunOnceAsync()
+        {
+            try
+            {
+                var xConnectClient = await _xConnectProvider.CreateXConnectClient();
+
+                var lastCheckpointDate = await _checkpointTracker.GetLastCheckpoint(_kinesisProducer.DeliveryStreamName);
+                var newCheckpointDate = DateTime.UtcNow;
+
+                var queryBatchEnumerator = await CreateXConnectQuery(xConnectClient,
+                                                                     lastCheckpointDate ?? QueryInitialTimestamp,
+                                                                     newCheckpointDate,
+                                                                     XConnectQueryBatchSize);
+
+                _logger.LogInfo($"xConnnet query returned {queryBatchEnumerator.TotalCount} records.");
+
+                while (await queryBatchEnumerator.MoveNext())
+                {
+                    var recordBatch = queryBatchEnumerator.Current;
+                    var transformedRecords = await CreateRecordsProjection(recordBatch);
+
+                    await _kinesisProducer.PutRecordsAsJson(transformedRecords);
+                }
+
+                await _checkpointTracker.CreateNewCheckpoint(_kinesisProducer.DeliveryStreamName, newCheckpointDate);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+            }
         }
 
         private async Task<IAsyncEntityBatchEnumerator<Interaction>> CreateXConnectQuery(XConnectClient xConnectClient, 
@@ -103,6 +143,12 @@ namespace Sitecore.DataStreaming
             .ToList();
 
             return await Task.FromResult(projection);
+        }
+
+        public void Dispose()
+        {
+            _kinesisProducer.Dispose();
+            _checkpointTracker.Dispose();
         }
     }
 }

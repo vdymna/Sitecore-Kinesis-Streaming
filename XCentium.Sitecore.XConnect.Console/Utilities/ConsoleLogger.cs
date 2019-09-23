@@ -1,4 +1,5 @@
 ﻿using System;
+using static System.Console;
 
 namespace Sitecore.DataStreaming.Utilities
 {
@@ -6,12 +7,19 @@ namespace Sitecore.DataStreaming.Utilities
     {
         public void LogError(Exception ex)
         {
-            System.Console.WriteLine($"ERROR: {ex.Message}");
+            WriteLine($"ERROR: {ex.GetType().Name} - {ex.Message}");
+
+            var inner = ex.InnerException;
+            while (inner != null)
+            {
+                WriteLine($"ERROR: {inner.GetType().Name} - {inner.Message}{Environment.NewLine}{ex.StackTrace}");
+                inner = inner.InnerException;
+            }
         }
 
         public void LogInfo(string message)
         {
-            System.Console.WriteLine($"INFO: {message}");
+            WriteLine($"INFO: {message}");
         }
     }
 }

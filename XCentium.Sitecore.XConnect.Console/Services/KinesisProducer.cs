@@ -10,9 +10,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sitecore.DataStreaming.Handlers
+namespace Sitecore.DataStreaming.Services
 {
-    public class KinesisFirehoseProducer : IDisposable
+    public class KinesisProducer : IDisposable
     {
         public string DeliveryStreamName { get; }
 
@@ -21,7 +21,6 @@ namespace Sitecore.DataStreaming.Handlers
         private readonly IConfiguration _config;
         private readonly ILogger _logger;
 
-        //private readonly string _deliveryStreamName;
         private readonly RegionEndpoint _region;
 
         private const int TotalMaxRetries = 6;
@@ -32,10 +31,10 @@ namespace Sitecore.DataStreaming.Handlers
         private int _failedRecordsMaxRetries = 0;
 
 
-        public KinesisFirehoseProducer(IConfiguration config)
+        public KinesisProducer(IConfiguration config, ILogger logger)
         {
             _config = config;
-            _logger = new ConsoleLogger();
+            _logger = logger;
 
             DeliveryStreamName = _config.GetValue<string>("aws:kinesisStream");
             _region = RegionEndpoint.GetBySystemName(_config.GetValue<string>("aws:region"));

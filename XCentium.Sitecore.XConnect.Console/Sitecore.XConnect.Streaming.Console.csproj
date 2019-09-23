@@ -190,20 +190,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Handlers\DynamoDbCheckpointTracker.cs" />
+    <Compile Include="Services\CheckpointTracker.cs" />
     <Compile Include="Utilities\ConsoleLogger.cs" />
     <Compile Include="DataStreamingPipeline.cs" />
     <Compile Include="Utilities\ILogger.cs" />
-    <Compile Include="Handlers\KinesisFirehoseProducer.cs" />
+    <Compile Include="Services\KinesisProducer.cs" />
     <Compile Include="Dtos\PageViewInteractionDto.cs" />
     <Compile Include="Extensions\KinesisRecordExtensions.cs" />
-    <Compile Include="Pipeline.Old.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\XConnectProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="CloudFormation\XConnectStreamingStack.yaml" />
   </ItemGroup>

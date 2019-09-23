@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Sitecore.DataStreaming.Handlers
+namespace Sitecore.DataStreaming.Services
 {
-    public class DynamoDbCheckpointTracker : IDisposable
+    public class CheckpointTracker : IDisposable
     {
         private readonly IAmazonDynamoDB _dynamoDBClient;
 
@@ -22,7 +22,7 @@ namespace Sitecore.DataStreaming.Handlers
         private const string ISO8601DateFormat = "o";
 
 
-        public DynamoDbCheckpointTracker(IConfiguration config)
+        public CheckpointTracker(IConfiguration config)
         {
             _config = config;
 
@@ -40,7 +40,6 @@ namespace Sitecore.DataStreaming.Handlers
             await CreateNewCheckpoint(checkpointIdentifier, DateTime.UtcNow);
         }
 
-        // TODO: exception handeling?
         public async Task CreateNewCheckpoint(string kinesisStreamName, DateTime timestamp)
         {
             var request = new PutItemRequest()

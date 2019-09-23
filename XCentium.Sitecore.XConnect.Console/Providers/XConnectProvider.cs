@@ -13,8 +13,6 @@ namespace Sitecore.DataStreaming.Providers
 {
     public class XConnectProvider
     {
-        //private readonly static string xConnectUrl = "https://sc9.xconnect/";
-        //private readonly static string xConnectCertificateThumbprint = "StoreName=My;StoreLocation=LocalMachine;FindType=FindByThumbprint;FindValue=677E7CCCF8091DB63F8B2C07B5205ACA330336A0";
         private readonly IConfiguration _config;
 
         public XConnectProvider(IConfiguration config)
@@ -34,7 +32,6 @@ namespace Sitecore.DataStreaming.Providers
             var xConnectUri = _config.GetValue<string>("xconnect:uri");
             var xConnectCertificateConfig = _config.GetSection("xconnect:certificate");
 
-            //var certificateOptions = CertificateWebRequestHandlerModifierOptions.Parse(xConnectCertificateThumbprint);
             var certificateModifier = new CertificateWebRequestHandlerModifier(xConnectCertificateConfig);
 
             var clientModifiers = new List<IHttpClientModifier>();
@@ -47,14 +44,7 @@ namespace Sitecore.DataStreaming.Providers
   
             var xConnectClientConfig = new XConnectClientConfiguration(new XdbRuntimeModel(CollectionModel.Model), xConnectCollectionClient, xConnectSearchClient, xConnectConfigurationClient);
 
-            //try
-            //{
-             await xConnectClientConfig.InitializeAsync();
-            //}
-            //catch (XdbModelConflictException ce)
-            //{
-            //    System.Console.WriteLine("ERROR:" + ce.Message);
-            //}
+            await xConnectClientConfig.InitializeAsync();
 
             return xConnectClientConfig;
         }

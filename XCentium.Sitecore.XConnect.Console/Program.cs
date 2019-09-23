@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Sitecore.DataStreaming.Utilities;
+using System;
 using System.Threading.Tasks;
 
 
@@ -12,8 +14,17 @@ namespace Sitecore.DataStreaming.Console
             configBuilder.AddXmlFile("settings.xml", true);
             var config = configBuilder.Build();
 
-            var pipeline = new DataStreamingPipeline(config);
-            Task.Run(() => pipeline.RunAsync()).Wait();
+            ILogger logger = new ConsoleLogger();
+
+            using (var pipeline = new DataStreamingPipeline(config, logger))
+            {
+                pipeline.Initialize();
+
+                var runTime = new TimeSpan(0, 1, 0);
+                Task.Run(() => pipeline.RunAsync(runTime)).Wait();
+            }
+
+            System.Console.ReadKey(); // Only for testing
         }
     }
 }
