@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Sitecore.DataStreaming.Services
+namespace Sitecore.Streaming.Services
 {
     public class CheckpointTracker : IDisposable
     {

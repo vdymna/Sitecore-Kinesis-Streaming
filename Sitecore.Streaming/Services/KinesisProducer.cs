@@ -2,15 +2,15 @@
 using Amazon.KinesisFirehose;
 using Amazon.KinesisFirehose.Model;
 using Microsoft.Extensions.Configuration;
-using Sitecore.DataStreaming.Extensions;
-using Sitecore.DataStreaming.Utilities;
+using Sitecore.Streaming.Extensions;
+using Sitecore.Streaming.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sitecore.DataStreaming.Services
+namespace Sitecore.Streaming.Services
 {
     public class KinesisProducer : IDisposable
     {

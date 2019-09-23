@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sitecore.DataStreaming.Utilities
+namespace Sitecore.Streaming.Utilities
 {
     public interface ILogger
     {

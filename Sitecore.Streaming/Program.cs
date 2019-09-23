@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Sitecore.DataStreaming.Utilities;
+using Sitecore.Streaming.Utilities;
 using System;
 using System.Threading.Tasks;
 
 
-namespace Sitecore.DataStreaming.Console
+namespace Sitecore.Streaming.Console
 {
     public class Program
     {

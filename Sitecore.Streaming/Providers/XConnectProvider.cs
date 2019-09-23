@@ -9,7 +9,7 @@ using Sitecore.XConnect.Schema;
 using Sitecore.XConnect.Collection.Model;
 using Microsoft.Extensions.Configuration;
 
-namespace Sitecore.DataStreaming.Providers
+namespace Sitecore.Streaming.Providers
 {
     public class XConnectProvider
     {

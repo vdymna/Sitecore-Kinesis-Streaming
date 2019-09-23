@@ -1,7 +1,7 @@
 ﻿using System;
 using static System.Console;
 
-namespace Sitecore.DataStreaming.Utilities
+namespace Sitecore.Streaming.Utilities
 {
     public class ConsoleLogger : ILogger
     {

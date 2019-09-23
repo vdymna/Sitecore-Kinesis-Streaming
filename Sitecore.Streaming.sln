@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.XConnect.Streaming.Console", "XCentium.Sitecore.XConnect.Console\Sitecore.XConnect.Streaming.Console.csproj", "{FF0CD56B-C5C9-4E3A-AA91-1BDAF24F5DB4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.Streaming", "Sitecore.Streaming\Sitecore.Streaming.csproj", "{FF0CD56B-C5C9-4E3A-AA91-1BDAF24F5DB4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

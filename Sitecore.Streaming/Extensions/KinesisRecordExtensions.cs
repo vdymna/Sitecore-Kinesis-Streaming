@@ -1,14 +1,11 @@
 ﻿using Amazon.KinesisFirehose.Model;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Sitecore.DataStreaming.Extensions
+namespace Sitecore.Streaming.Extensions
 {
     public static class KinesisRecordExtensions
     {

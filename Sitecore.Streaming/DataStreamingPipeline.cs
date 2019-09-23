@@ -1,18 +1,18 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Sitecore.DataStreaming.Services;
-using Sitecore.DataStreaming.Providers;
+using Sitecore.Streaming.Services;
+using Sitecore.Streaming.Providers;
 using Sitecore.XConnect;
 using Sitecore.XConnect.Client;
 using Sitecore.XConnect.Collection.Model;
-using Sitecore.XConnect.Streaming.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Sitecore.DataStreaming.Utilities;
+using Sitecore.Streaming.Utilities;
 using System.Diagnostics;
+using Sitecore.Streaming.Dtos;
 
-namespace Sitecore.DataStreaming
+namespace Sitecore.Streaming
 {
     public class DataStreamingPipeline : IDisposable
     {
