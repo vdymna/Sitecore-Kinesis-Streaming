@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 
 
-namespace Sitecore.Streaming.Console
+namespace Sitecore.Streaming
 {
     public class Program
     {

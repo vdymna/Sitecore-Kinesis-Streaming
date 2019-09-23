@@ -79,7 +79,7 @@ namespace Sitecore.Streaming
                                                                      newCheckpointDate,
                                                                      XConnectQueryBatchSize);
 
-                _logger.LogInfo($"xConnnet query returned {queryBatchEnumerator.TotalCount} records.");
+                _logger.LogInfo($"xConnnet query returned {queryBatchEnumerator.TotalCount} record(s).");
 
                 while (await queryBatchEnumerator.MoveNext())
                 {

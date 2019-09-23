@@ -1,11 +1,15 @@
 ﻿using Amazon;
 using Amazon.KinesisFirehose;
 using Amazon.KinesisFirehose.Model;
+using Amazon.Runtime;
 using Microsoft.Extensions.Configuration;
+using Polly;
+using Polly.Retry;
 using Sitecore.Streaming.Extensions;
 using Sitecore.Streaming.Utilities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,12 +27,10 @@ namespace Sitecore.Streaming.Services
 
         private readonly RegionEndpoint _region;
 
-        private const int TotalMaxRetries = 6;
-        private int _totalRetries = 0;
-        private const int ServiceUnavailableMaxRetries = 4;
-        private int _serviceUnavailableRetries = 0;
-        private const int FailedRecordsMaxRetries = 4;
-        private int _failedRecordsMaxRetries = 0;
+        private const int ServiceExceptionMaxRetries = 4;
+        private const int FailedRecordsMaxRetries = 10;
+
+        private int _failedRecordsRetriesCount = 0;
 
 
         public KinesisProducer(IConfiguration config, ILogger logger)
@@ -49,85 +51,67 @@ namespace Sitecore.Streaming.Services
             var kinesisRecords = records
                 .Select(r => r.ToJsonWithNewline().ToKinesisRecord())
                 .ToList();
-            
+
+            // each record record must be <= 1,000 KB
+            // whole request must be under 4 MB
             foreach (var chunkOfRecords in kinesisRecords.SplitIntoChunks())
             {
-                _logger.LogInfo($"Putting {chunkOfRecords.Count} records into the Kinesis stream.");
+                _logger.LogInfo($"Putting {chunkOfRecords.Count} record(s) into the Kinesis stream.");
                 var response = await AttemptPutRecords(chunkOfRecords);
+
+                ResetRetryCounter();
             }
         }
 
 
         public async Task<PutRecordBatchResponse> AttemptPutRecords(List<Record> kinesisRecords)
         {
-            // each record record must be <= 1,000 KB
-            // whole request must be under 4 MB
+            var retryPolicy = GetExceptionRetryPolicy();
 
             PutRecordBatchResponse response = null;
+            kinesisRecords = kinesisRecords.Take(3).ToList();
 
-            try
+            await retryPolicy.ExecuteAsync(async () =>
             {
                 response = await _kinesisFirehoseClient.PutRecordBatchAsync(DeliveryStreamName, kinesisRecords);
 
                 if (response.FailedPutCount > 0)
                 {
-                    await RetryFailedRecordsOnly(response, kinesisRecords);
+                    await RetryFailedRecords(response, kinesisRecords);
                 }
-
-            }
-            catch (AmazonKinesisFirehoseException ex)
-            {
-                if ((int)ex.StatusCode / 100 == 5)
-                {
-                    // need to back off and retry
-                    if (_totalRetries <= TotalMaxRetries)
-                    {
-                        Thread.Sleep(1000 * 5); // wait 5 seconds
-
-                        _totalRetries++;
-                        await AttemptPutRecords(kinesisRecords);
-                    }
-                    else
-                    {
-                        _totalRetries = 0; // reset retries
-                        _logger.LogError(ex);
-                        //throw;
-                    }
-                }
-                else
-                {
-                    _logger.LogError(ex);
-                    //throw;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex);
-                //throw;
-            }
+            });
 
             return response;
         }
 
-        private async Task RetryFailedRecordsOnly(PutRecordBatchResponse response, List<Record> kinesisRecords)
+        private async Task RetryFailedRecords(PutRecordBatchResponse response, List<Record> originalRecords)
         {
             var failedRecords = new List<Record>();
 
-            for (int i = 0; i < kinesisRecords.Count; i++)
+            for (int i = 0; i < originalRecords.Count; i++)
             {
                 var recordResponse = response.RequestResponses[i];
-                if (!string.IsNullOrEmpty(recordResponse.ErrorCode))
+                if (!string.IsNullOrEmpty(recordResponse?.ErrorCode))
                 {
-                    var originalRecord = kinesisRecords[i];
+                    var originalRecord = originalRecords[i];
                     failedRecords.Add(originalRecord);
                 }
             }
 
-            // TODD: need to track retires on failed records
-            if (failedRecords.Count > 0 && _failedRecordsMaxRetries <= FailedRecordsMaxRetries)
+            if (failedRecords.Count > 0 && _failedRecordsRetriesCount < FailedRecordsMaxRetries)
             {
-                _failedRecordsMaxRetries++;
+                _failedRecordsRetriesCount++;
+                Thread.Sleep(TimeSpan.FromSeconds(_failedRecordsRetriesCount * 2));
+                _logger.LogInfo($"Retrying {failedRecords.Count} failed record(s).");
+
                 await AttemptPutRecords(failedRecords);
+            }
+            else if (failedRecords.Count > 0)
+            {
+                foreach (var record in failedRecords)
+                {
+                    _logger.LogInfo(string.Format("Not able to put a record: {0}", new StreamReader(record.Data).ReadToEnd()));
+                }
             }
 
         }
@@ -146,6 +130,27 @@ namespace Sitecore.Streaming.Services
             }
 
             return new AmazonKinesisFirehoseClient();
+        }
+
+        private AsyncRetryPolicy GetExceptionRetryPolicy()
+        {
+            return Policy
+                .Handle<AmazonKinesisFirehoseException>(ex => (int)ex.StatusCode / 100 == 5)
+                .Or<AmazonServiceException>(ex => (int)ex.StatusCode / 100 == 5)
+                .WaitAndRetryAsync(
+                    ServiceExceptionMaxRetries,
+                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (ex, timeSpan) =>
+                    {
+                        _logger.LogError(ex);
+                        _logger.LogInfo("Retrying...");
+                    }
+                );
+        }
+
+        private void ResetRetryCounter()
+        {
+            _failedRecordsRetriesCount = 0; // reset this value
         }
     }
 }

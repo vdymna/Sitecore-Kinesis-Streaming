@@ -12,7 +12,7 @@ namespace Sitecore.Streaming.Utilities
             var inner = ex.InnerException;
             while (inner != null)
             {
-                WriteLine($"ERROR: {inner.GetType().Name} - {inner.Message}{Environment.NewLine}{ex.StackTrace}");
+                WriteLine($"ERROR: {inner.GetType().Name} - {inner.Message}"); //{Environment.NewLine}{ex.StackTrace}
                 inner = inner.InnerException;
             }
         }
