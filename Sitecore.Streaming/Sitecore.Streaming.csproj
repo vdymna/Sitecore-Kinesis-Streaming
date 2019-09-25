@@ -227,6 +227,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CloudFormation\redshift_schema.sql" />
+    <None Include="settings.xml.dev">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
