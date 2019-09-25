@@ -66,7 +66,7 @@ namespace Sitecore.Streaming.Services
 
         public async Task<PutRecordBatchResponse> AttemptPutRecords(List<Record> kinesisRecords)
         {
-            var retryPolicy = GetExceptionRetryPolicy();
+            var retryPolicy = CreateExceptionRetryPolicy();
 
             PutRecordBatchResponse response = null;
             kinesisRecords = kinesisRecords.Take(3).ToList();
@@ -101,7 +101,8 @@ namespace Sitecore.Streaming.Services
             if (failedRecords.Count > 0 && _failedRecordsRetriesCount < FailedRecordsMaxRetries)
             {
                 _failedRecordsRetriesCount++;
-                Thread.Sleep(TimeSpan.FromSeconds(_failedRecordsRetriesCount * 2));
+                Thread.Sleep(TimeSpan.FromSeconds(5));
+
                 _logger.LogInfo($"Retrying {failedRecords.Count} failed record(s).");
 
                 await AttemptPutRecords(failedRecords);
@@ -132,7 +133,7 @@ namespace Sitecore.Streaming.Services
             return new AmazonKinesisFirehoseClient();
         }
 
-        private AsyncRetryPolicy GetExceptionRetryPolicy()
+        private AsyncRetryPolicy CreateExceptionRetryPolicy()
         {
             return Policy
                 .Handle<AmazonKinesisFirehoseException>(ex => (int)ex.StatusCode / 100 == 5)
