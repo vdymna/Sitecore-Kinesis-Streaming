@@ -69,7 +69,6 @@ namespace Sitecore.Streaming.Services
             var retryPolicy = CreateExceptionRetryPolicy();
 
             PutRecordBatchResponse response = null;
-            kinesisRecords = kinesisRecords.Take(3).ToList();
 
             await retryPolicy.ExecuteAsync(async () =>
             {
