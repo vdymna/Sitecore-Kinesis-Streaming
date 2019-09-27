@@ -1,5 +1,6 @@
 ﻿using Amazon.KinesisFirehose.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,9 +12,15 @@ namespace Sitecore.Streaming.Extensions
     {
         private const string UnixNewLine = "\n";
 
+        private static readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings()
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Formatting = Formatting.Indented
+        };
+
         public static string ToJson(this object input)
         {
-            return JsonConvert.SerializeObject(input);
+            return JsonConvert.SerializeObject(input, _jsonSettings);
         }
 
         public static string ToJsonWithNewline(this object input)

@@ -2,22 +2,22 @@
 <settings>
   <xconnect>
     <!-- xConnect service URI -->
-    <uri></uri>
+    <uri>https://sc9.xconnect/</uri>
     <!-- Client certificate for the xConnect server. -->
     <certificate>
       <AllowInvalidClientCertificates>true</AllowInvalidClientCertificates>
       <StoreName>My</StoreName>
       <StoreLocation>LocalMachine</StoreLocation>
       <FindType>FindByThumbprint</FindType>
-      <FindValue></FindValue>
+      <FindValue>677E7CCCF8091DB63F8B2C07B5205ACA330336A0</FindValue>
     </certificate>
   </xconnect>
   <aws>
     <!-- AWS Region -->
-    <region></region>
+    <region>us-west-2</region>
     <!-- Kinesis Firehouse Delivery Stream Name -->
-    <kinesisStream></kinesisStream>
+    <kinesisStream>vdymna-xconnect-test</kinesisStream>
     <!-- DynamoDB Checkpoint Table Name -->
-    <checkpointTable></checkpointTable>
+    <checkpointTable>StreamingCheckpoint</checkpointTable>
   </aws>
 </settings>

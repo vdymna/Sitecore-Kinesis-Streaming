@@ -20,7 +20,7 @@ namespace Sitecore.Streaming
             {
                 pipeline.Initialize();
 
-                var runTime = TimeSpan.FromMinutes(60);
+                var runTime = TimeSpan.FromMinutes(30);
                 Task.Run(() => pipeline.RunAsync(runTime)).Wait();
             }
         }

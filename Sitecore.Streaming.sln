@@ -1,9 +1,26 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.705
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29318.209
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.Streaming", "Sitecore.Streaming\Sitecore.Streaming.csproj", "{FF0CD56B-C5C9-4E3A-AA91-1BDAF24F5DB4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitecore.Streaming", "src\Sitecore.Streaming.csproj", "{FF0CD56B-C5C9-4E3A-AA91-1BDAF24F5DB4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FC6A1DE3-3601-407A-A53C-C7F103301FBE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aws", "aws", "{9F098C5D-60AB-4E98-B19C-BB532A59BEFE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cloudformation", "cloudformation", "{A4E831A9-BCD1-4B99-9040-2244E4BCE195}"
+	ProjectSection(SolutionItems) = preProject
+		aws\cloudformation\RedshiftClusterStack.yaml = aws\cloudformation\RedshiftClusterStack.yaml
+		aws\cloudformation\SitecoreStreamingRedshiftDestinationStack.yaml = aws\cloudformation\SitecoreStreamingRedshiftDestinationStack.yaml
+		aws\cloudformation\SitecoreStreamingS3DestinationStack.yaml = aws\cloudformation\SitecoreStreamingS3DestinationStack.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "redshift", "redshift", "{839363AD-2C55-4669-A876-1BD38B12D47A}"
+	ProjectSection(SolutionItems) = preProject
+		aws\redshift\redshift-jsonpaths.json = aws\redshift\redshift-jsonpaths.json
+		aws\redshift\redshift_schema.sql = aws\redshift\redshift_schema.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +35,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FF0CD56B-C5C9-4E3A-AA91-1BDAF24F5DB4} = {FC6A1DE3-3601-407A-A53C-C7F103301FBE}
+		{A4E831A9-BCD1-4B99-9040-2244E4BCE195} = {9F098C5D-60AB-4E98-B19C-BB532A59BEFE}
+		{839363AD-2C55-4669-A876-1BD38B12D47A} = {9F098C5D-60AB-4E98-B19C-BB532A59BEFE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {996DD289-133A-407A-A4F5-FB076166C338}

@@ -217,22 +217,19 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="CloudFormation\RedshiftClusterStack.yaml" />
     <None Include="packages.config" />
-    <None Include="CloudFormation\xConnectStreamingStack.yaml" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\AWSSDK.DynamoDBv2.3.3.101.67\analyzers\dotnet\cs\AWSSDK.DynamoDBv2.CodeAnalysis.dll" />
     <Analyzer Include="..\packages\AWSSDK.KinesisFirehose.3.3.100.68\analyzers\dotnet\cs\AWSSDK.KinesisFirehose.CodeAnalysis.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CloudFormation\redshift_schema.sql" />
-    <None Include="settings.xml.dev">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Content Include="settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="settings.xml.bak">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup Condition="$(VisualStudioVersion) == '15.0'">

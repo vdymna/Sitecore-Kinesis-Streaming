@@ -347,4 +347,7 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
-/Sitecore.Streaming/settings.xml.dev
+
+# ignore local settings.xml file
+settings.xml.dev
+settings.xml.bak

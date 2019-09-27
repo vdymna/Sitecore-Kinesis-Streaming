@@ -126,19 +126,21 @@ namespace Sitecore.Streaming
                 var ipInfoFacet = interaction.GetFacet<IpInfo>();
                 var webVisitFacet = interaction.GetFacet<WebVisit>();
 
-                return interaction.Events.OfType<PageViewEvent>().Select(pageView => new PageViewInteractionDto()
-                {
-                    ContactId = contact.Id,
-                    EmailAddress = emailListFacet.PreferredEmail?.SmtpAddress,
-                    InteractionId = interaction.Id,
-                    SiteName = webVisitFacet.SiteName,
-                    UserAgent = interaction.UserAgent,
-                    IpAddress = ipInfoFacet.IpAddress,
-                    PageViewEventId = pageView.Id,
-                    Timestamp = pageView.Timestamp,
-                    Duration = pageView.Duration,
-                    Url = pageView.Url
-                });
+                return interaction.Events.OfType<PageViewEvent>().Select(pageView => 
+                    new PageViewInteractionDto()
+                    {
+                        PageViewEventId = pageView.Id,
+                        EventTimestamp = pageView.Timestamp.ToString("u"),
+                        InteractionId = interaction.Id,
+                        ContactId = contact.Id,
+                        Url = pageView.Url,
+                        DurationInSeconds = Convert.ToInt32(pageView.Duration.TotalSeconds),
+                        SiteName = webVisitFacet.SiteName,
+                        EmailAddress = emailListFacet.PreferredEmail?.SmtpAddress,
+                        UserAgent = interaction.UserAgent,
+                        IpAddress = ipInfoFacet.IpAddress
+                    }
+                );
             })
             .ToList();
 

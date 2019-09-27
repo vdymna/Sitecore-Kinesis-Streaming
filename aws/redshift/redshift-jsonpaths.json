@@ -1,0 +1,14 @@
+{
+  "jsonpaths": [
+    "$.pageViewEventId",
+    "$.eventTimestamp",
+    "$.interactionId",
+    "$.contactId",
+    "$.url",
+    "$.durationInSeconds",
+    "$.siteName",
+    "$.emailAddress",
+    "$.userAgent",
+    "$.ipAddress"
+  ]
+}
