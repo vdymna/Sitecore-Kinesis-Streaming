@@ -1,4 +1,4 @@
-# Sitecore Kinesis Firehouse Streaming Data Pipeline
+# Sitecore Kinesis Firehose Streaming Data Pipeline
  
 The data pipeline to extract experience analytics data from Sitecore's Experience Database (xDB) and push it into Amazon Redshift in near real time. Amazon Kinesis Data Firehose delivery stream serves as the backbone for the pipeline. Amazon S3 is used as the staging area for the data before it's copied into the Redshift table. The pipeline logic includes checkpointing functionality that records the last processed data (based on a timestamp) and Amazon DynamoDB used as the storage for the checkpointing.
 
@@ -8,7 +8,7 @@ This instructions are designed to get you up and running on your local dev machi
 ### Prerequisites
 1. You can leverage an existing Redshift dev cluster or create new single-node cluster using [RedshiftClusterStack.yaml](aws/cloudformation/RedshiftClusterStack.yaml) CloudFormation template.
 2. Connect to your Redshift dev database and create the destination table using this [redshift_schema.sql](aws/redshift/redshift_schema.sql) script.
-3. Deploy [SitecoreStreamingRedshiftDestinationStack.yaml](aws/cloudformation/SitecoreStreamingRedshiftDestinationStack.yaml) CloudFormation template which will create Kinesis Firehouse delivery stream, S3 staging bucket, DynamoDB table and required IAM resources. You do need to provide following parameters when creating the CloudFormation stack:
+3. Deploy [SitecoreStreamingRedshiftDestinationStack.yaml](aws/cloudformation/SitecoreStreamingRedshiftDestinationStack.yaml) CloudFormation template which will create Kinesis Firehose delivery stream, S3 staging bucket, DynamoDB table and required IAM resources. You do need to provide following parameters when creating the CloudFormation stack:
    * Kinesis delivery stream name
    * DynamoDB checkpoint table name
    * S3 staging bucket name
