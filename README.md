@@ -20,4 +20,4 @@ This instructions are designed to get you up and running on your local dev machi
 5. Override [settings.xml](src/settings.xml) with your xConnect and AWS settings (see my [blog post](https://xcentium.com/blog/2019/09/10/using-xconnect-client-in-non-sitecore-context) on how to configure xConnect client)
 
 ### Running
-xConnect required admin permissions, so you must run the solution as administrator.
+xConnect required admin permissions, so you must run the solution as an administrator.
