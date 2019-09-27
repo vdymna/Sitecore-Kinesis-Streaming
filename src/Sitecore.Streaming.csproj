@@ -224,12 +224,12 @@
     <Analyzer Include="..\packages\AWSSDK.KinesisFirehose.3.3.100.68\analyzers\dotnet\cs\AWSSDK.KinesisFirehose.CodeAnalysis.dll" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="settings.xml.dev">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="settings.xml.bak">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup Condition="$(VisualStudioVersion) == '15.0'">

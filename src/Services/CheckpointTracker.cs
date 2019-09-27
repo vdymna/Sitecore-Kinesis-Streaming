@@ -86,20 +86,17 @@ namespace Sitecore.Streaming.Services
                 ProjectionExpression = LastCheckpointTimestampAttribute
             };
 
-            DateTime? result = new DateTime(2018, 01, 01, 0, 0, 0, DateTimeKind.Utc);
-            return await Task.FromResult(result);
+            var response = await _dynamoDBClient.GetItemAsync(request);
 
-            //var response = await _dynamoDBClient.GetItemAsync(request);
-
-            //if (response.Item.Count > 0 &&
-            //    DateTime.TryParse(response.Item[LastCheckpointTimestampAttribute].S, out var checkpoint))
-            //{
-            //    return checkpoint.ToUniversalTime();
-            //}
-            //else
-            //{
-            //    return null;
-            //}
+            if (response.Item.Count > 0 &&
+                DateTime.TryParse(response.Item[LastCheckpointTimestampAttribute].S, out var checkpoint))
+            {
+                return checkpoint.ToUniversalTime();
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public void Dispose()
