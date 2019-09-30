@@ -7,7 +7,7 @@ This instructions are designed to get you up and running on your local dev machi
 
 ### Prerequisites
 1. You can leverage an existing Redshift dev cluster or create new single-node cluster using [RedshiftClusterStack.yaml](aws/cloudformation/RedshiftClusterStack.yaml) CloudFormation template.
-2. Connect to your Redshift dev database and create the destination table using this [redshift_schema.sql](aws/redshift/redshift_schema.sql) script.
+2. Connect to your Redshift dev database and create destination table using this [redshift_schema.sql](aws/redshift/redshift_schema.sql) script.
 3. Deploy [SitecoreStreamingRedshiftDestinationStack.yaml](aws/cloudformation/SitecoreStreamingRedshiftDestinationStack.yaml) CloudFormation template which will create Kinesis Firehose delivery stream, S3 staging bucket, DynamoDB table and required IAM resources. You do need to provide following parameters when creating the CloudFormation stack:
    * Kinesis delivery stream name
    * DynamoDB checkpoint table name
